@@ -6,9 +6,6 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-import copy
-import json
-
 DOCUMENTATION = r'''
 ---
 module: godaddy_dns
@@ -209,6 +206,7 @@ records:
 
 import re
 import os
+import copy
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib
 
@@ -291,8 +289,6 @@ def replace_records(base, api_key, domain, record, record_type, records):
     url = f"{base}/{_domain_api_version}/domains/{domain}/records/{record_type}/{record}"
     ret = {}
     body = _format_for_godaddy(records)
-    with open("/tmp/tommytmp", "w") as f:
-        json.dump(body, f, indent=2)
     r = requests.put(url, headers=headers, json=body)
 
     if r.status_code == 200:
