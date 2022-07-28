@@ -48,8 +48,7 @@ options:
         It will be added or replace the first value matching I(regex). 
         If I(regex) is not defined, and the I(value) is not found, it will be appended to the existing record.
       - If I(state) is 'get', this argument is ignored.
-      - If I(type) is 'MX', the record needs to consist of the priority and host (no trailing '.') separated 
-        by one space. If you add the trailing '.', the task will show 'changed' every time.
+      - If I(type) is 'MX', the record needs to consist of the priority and host separated by one space.
       - If I(type) is 'TXT', don't surround the value with additional quotes or split overly-large entries, 
         otherwise the API will get utterly confused. It will take any string and split it automatically, if necessary.
     type: str
@@ -418,7 +417,7 @@ def main():
 
     url_base = module.params.get('url_base').strip('/')
     api_key = module.params.get('api_key') or os.environ["GODADDY_API_KEY"] or None
-    domain = module.params.get('domain')
+    domain = module.params.get('domain').strip(".")
     name = module.params.get('name')
     record_type = module.params.get('type')
     ttl_in = module.params.get('ttl')
@@ -463,7 +462,8 @@ def main():
             record_set_from_in.append({
                 "record": name,
                 "type": record_type,
-                "value": value,
+                # the API doesn't like trailing '.'s on records
+                "value": value if not record_type == "MX" else value.strip("."),
                 "ttl": ttl_in,
             })
 
